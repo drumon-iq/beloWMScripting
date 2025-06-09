@@ -1,5 +1,6 @@
 #!/usr/bin/bash
-# TODO: Add a way to use this file for more than just Workspace projects, to edit documents and stuff
+
+textEditor="st -e nvim" #this is the default text editor, can be any command that accepts the first argument as the file to edit
 
 # Used for debugging and overall notifications for the user
 # Currently only prints to stdout
@@ -34,7 +35,7 @@ fi
 
 template_setup () {
     echo "#!/usr/bin/bash" >> ${projsetup}/text-editor
-    echo "st -e nvim" >> ${projsetup}/text-editor
+    echo ${textEditor} >> ${projsetup}/text-editor
 }
 
 if ! [ -d ${projsetup} ]; then
