@@ -1,10 +1,12 @@
 #!/usr/bin/bash
 
 skripts="$(ls ../beloWMScripting | sed 's/install-script.sh//p')"
+local_skripts="$HOME/.local/scripts"
 
-if ! [ -d $HOME/.local/scripts ]; then
-    mkdir -p $HOME/.local/scripts
+if ! [ -d ${local_skripts} ]; then
+    mkdir -p ${local_skripts}
 fi
 
+cp ${skripts} ${local_skripts}
+cd ${local_skripts}
 chmod +x ${skripts}
-cp ${skripts} $HOME/.local/scripts
