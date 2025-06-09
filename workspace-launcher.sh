@@ -1,27 +1,48 @@
 #!/usr/bin/bash
 
-textEditor="st -e nvim" #this is the default text editor, can be any command that accepts the first argument as the file to edit
+#=== Default values ===
+
+# Change each variable during call, instead of editing the script
+# i.e $ textEditor="kitty -e vim" sh workspace-launcher.sh
+# or $ textEditor="kitty -e nvim" menu="rofi -dmenu" sh workspace-launcher.sh
+
+if [ -z ${textEditor} ]
+then
+    # This is the default text editor
+    # can be any command that accepts the first argument as the file to edit
+    textEditor="st -e nvim"
+fi
+
+if [ -z ${rootdir} ]
+then
+    # All my projects are in the Workspace directory
+    # Another configuration could be HOME/Arduino for arduino projects
+    rootdir="$HOME/Workspace/"
+fi
+
+if [ -z ${menu} ]
+then
+    # Using DMENU to filter the desired project
+    # The way for selecting PROJ can be anything, fzf, rofi,
+    # as long as the result is the name of the folder, no slash, i.e just "PROJECT"
+    menu="dmenu"
+fi
 
 # Used for debugging and overall notifications for the user
-# Currently only prints to stdout
-msg_notify () {
-    echo $@
-}
+if [ -z ${notify} ]
+then
+    notify=echo
+fi
 
-# All my projects are in the Workspace directory
-# Another configuration could be HOME/Arduino for arduino projects
-rootdir="$HOME/Workspace/"
+#=== Setting up enviroment ===
 
-# Using DMENU to filter the desired project
-# The way for selecting PROJ can be anything, fzf, rofi,
-# as long as the result is the name of the folder, no slash, i.e just "PROJECT"
 get_project_folder () {
-    echo `ls $rootdir | dmenu`
+    echo `ls ${rootdir} | ${menu}`
 }
 
 proj=$(get_project_folder)
 if [ -z ${proj} ]; then
-    msg_notify Nothing was selected, bailing oooout
+    ${notify} Nothing was selected, bailing oooout
     exit
 fi
 
@@ -46,9 +67,11 @@ fi
 cd ${projdir}
 
 if [ -z $(ls ${projsetup}) ]; then
-    echo nothing to do, bailing out
+    ${notify} nothing to do, bailing out
     exit
 fi
+
+#=== Launching applications for project ===
 
 # Inside the setup folder for each project
 # lies a bunch of simple scripts and executables
