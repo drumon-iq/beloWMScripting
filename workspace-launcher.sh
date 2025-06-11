@@ -31,7 +31,7 @@ fi
 # Used for debugging and overall notifications for the user
 if [ -z ${notify} ]
 then
-    notify=echo
+    notify=xcowsay
 fi
 
 #=== Setting up enviroment ===
@@ -50,7 +50,7 @@ fi
 
 if ! [ -d ${projdir} ]
 then
-    ans=$(echo "no\nyes" | dmenu -p "${proj} wasn\'t found, create project?")
+    ans=$(echo -e "no\nyes" | dmenu -p "${proj} wasn\'t found, create project?")
     if [ ${ans} = "yes" ]
     then
 	mkdir -p ${projdir}
