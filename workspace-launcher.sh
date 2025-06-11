@@ -41,12 +41,25 @@ get_project_folder () {
 }
 
 proj=$(get_project_folder)
+projdir="${rootdir}${proj}"
+
 if [ -z ${proj} ]; then
     ${notify} Nothing was selected, bailing oooout
     exit
 fi
 
-projdir="${rootdir}${proj}"
+if ! [ -d ${projdir} ]
+then
+    ans=$(echo "no\nyes" | dmenu -p "${proj} wasn\'t found, create project?")
+    if [ ${ans} = "yes" ]
+    then
+	mkdir -p ${projdir}
+    else
+	${notify} Leaving as no project was selected
+	exit
+    fi
+fi
+
 wfsetup="${rootdir}.workflow-setups"
 projsetup="${wfsetup}/${proj}"
 
