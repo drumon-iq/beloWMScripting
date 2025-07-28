@@ -13,6 +13,13 @@ then
     textEditor="st -e nvim"
 fi
 
+if [ -z ${terminal} ]
+then
+    # This is the default text editor
+    # can be any command that accepts the first argument as the file to edit
+    terminal="st"
+fi
+
 if [ -z ${rootdir} ]
 then
     # All my projects are in the Workspace directory
@@ -43,7 +50,8 @@ get_project_folder () {
 proj=$(get_project_folder)
 projdir="${rootdir}${proj}"
 
-if [ -z ${proj} ]; then
+if [ -z ${proj} ]
+then
     ${notify} Nothing was selected, bailing oooout
     exit
 fi
@@ -63,35 +71,35 @@ fi
 wfsetup="${rootdir}.workflow-setups"
 projsetup="${wfsetup}/${proj}"
 
-if ! [ -d ${wfsetup} ]; then
+if ! [ -d ${wfsetup} ]
+then
     mkdir -p ${wfsetup}
 fi
 
-template_setup () {
-    echo "#!/usr/bin/bash" >> ${projsetup}/text-editor
-    echo ${textEditor} >> ${projsetup}/text-editor
+common_setup () {
+    setsid ${textEditor} &
+    setsid ${terminal} &
 }
 
-if ! [ -d ${projsetup} ]; then
-    mkdir -p ${projsetup}
-    template_setup
-fi
+# For a custom workspace setup, create a folder with the same name as the project inside
+# .workflow-setups and put the executables inside
+custom_setup () {
+    if [ -z $(ls ${projsetup}) ]
+    then
+	${notify} nothing to do, bailing out
+	exit
+    fi
+
+    for i in $(ls ${projsetup}); do
+	setsid bash ${projsetup}/$i & > /dev/null
+    done
+}
 
 cd ${projdir}
 
-if [ -z $(ls ${projsetup}) ]; then
-    ${notify} nothing to do, bailing out
-    exit
+if ! [ -d ${projsetup} ]
+then
+    common_setup
+else
+    custom_setup
 fi
-
-#=== Launching applications for project ===
-
-# Inside the setup folder for each project
-# lies a bunch of simple scripts and executables
-# the order for ls is alphabetical, and dwm sets the last
-# application as the master, so I edit the setup to make
-# the main window (like the text editor) the last to be executed
-
-for i in $(ls ${projsetup}); do
-    setsid bash ${projsetup}/$i & > /dev/null
-done
